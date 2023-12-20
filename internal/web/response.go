@@ -20,7 +20,7 @@ type HttpError struct {
 // Error returns an error response
 func Error(request *http.Request, response http.ResponseWriter, message string, err error, httpError *HttpError) {
 	log.Printf("ERROR: %s", fmt.Sprintf("%s via %s: %v", message, request.URL.Path, err))
-	notify.Message(fmt.Sprintf("Error encountered.\n\nIP: %s\nMethod: %s\nURL: %s", getRemoteAddress(request), request.Method, request.URL.Path))
+	notify.Message(fmt.Sprintf("Error encountered.\n\nError: %v\n\nIP: %s\nMethod: %s\nURL: %s", err, getRemoteAddress(request), request.Method, request.URL.Path))
 
 	if httpError == nil {
 		httpError = &HttpError{

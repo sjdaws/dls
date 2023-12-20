@@ -1,6 +1,7 @@
 package main
 
 import (
+    "errors"
     "fmt"
     "log"
     "net/http"
@@ -48,7 +49,7 @@ func main() {
 }
 
 func invalidRoute(response http.ResponseWriter, request *http.Request) {
-    web.Error(request, response, "route requested but not found", nil, nil)
+    web.Error(request, response, "route requested but not found", errors.New("invalid route"), nil)
 }
 
 func serveHTTP(router *mux.Router, errs chan<- error) {
