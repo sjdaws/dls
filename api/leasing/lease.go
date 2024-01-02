@@ -12,7 +12,7 @@ import (
 )
 
 type LeaseResponse struct {
-    ExpiresAt               int64    `json:"expires,omitempty"`
+    ExpiresAt               string   `json:"expires,omitempty"`
     OfflineLease            bool     `json:"offline_lease,omitempty"`
     Prompts                 []string `json:"prompts"`
     RecommendedLeaseRenewal float32  `json:"recommended_lease_renewal,omitempty"`
@@ -83,7 +83,7 @@ func (l *Leasing) UpdateLease(response http.ResponseWriter, request *http.Reques
     }
 
     reply, err := json.Marshal(&LeaseResponse{
-        ExpiresAt:               expiryTime.Unix(),
+        ExpiresAt:               expiryTime.Format("2006-01-02T15:04:05.000000Z"),
         OfflineLease:            true,
         RecommendedLeaseRenewal: global.LeaseRenewalPercent,
         Reference:               leaseId,
