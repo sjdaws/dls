@@ -1,12 +1,9 @@
 package auth
 
 import (
-    "database/sql"
     "encoding/json"
-    "fmt"
     "net/http"
 
-    db "github.com/sjdaws/dls/database"
     "github.com/sjdaws/dls/internal/global"
     "github.com/sjdaws/dls/internal/web"
 )
@@ -68,24 +65,6 @@ func (a *Auth) FindOrCreateOrigin(response http.ResponseWriter, request *http.Re
     if err != nil {
         web.Error(request, response, "error unmarshaling json body", err, nil)
         return
-    }
-
-    origin, err := a.database.GetOrigin(body.CandidateOriginReference)
-    // Ignore error returned when no rows are found
-    if err != nil && err != sql.ErrNoRows {
-        web.Error(request, response, fmt.Sprintf("error fetching origin '%s' from the database", body.CandidateOriginReference), err, nil)
-        return
-    }
-
-    if origin == nil {
-        err = a.database.CreateOrigin(&db.Origin{
-            Hostname:  body.Environment.Hostname,
-            Reference: body.CandidateOriginReference,
-        })
-        if err != nil {
-            web.Error(request, response, fmt.Sprintf("error creating origin '%s' in the database", body.CandidateOriginReference), err, nil)
-            return
-        }
     }
 
     body.Environment.RawEnvironment = RawEnvironment{

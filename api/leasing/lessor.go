@@ -9,7 +9,6 @@ import (
 
     "github.com/google/uuid"
     "github.com/sjdaws/dls/api/auth"
-    db "github.com/sjdaws/dls/database"
     "github.com/sjdaws/dls/internal/global"
     "github.com/sjdaws/dls/internal/web"
 )
@@ -81,7 +80,7 @@ func (l *Leasing) CreateOriginLease(response http.ResponseWriter, request *http.
         return
     }
 
-    token, err := auth.ReadFromHeader(request)
+    _, err = auth.ReadFromHeader(request)
     if err != nil {
         web.Error(request, response, "invalid jwt", err, &web.HttpError{Detail: "invalid token", StatusCode: http.StatusUnauthorized})
         return
@@ -92,17 +91,6 @@ func (l *Leasing) CreateOriginLease(response http.ResponseWriter, request *http.
     leaseList := make([]LeaseList, 0)
     for range body.ScopeReferenceList {
         reference := strings.ToUpper(fmt.Sprintf("%v", uuid.New()))
-
-        err = l.database.CreateLease(&db.Lease{
-            CreatedAt:       currentTime,
-            ExpiresAt:       expiryTime,
-            OriginReference: token.OriginReference,
-            Reference:       reference,
-        })
-        if err != nil {
-            web.Error(request, response, fmt.Sprintf("error creating lease in the database for origin '%s'", token.OriginReference), err, nil)
-            return
-        }
 
         leaseList = append(leaseList, LeaseList{
             Ordinal: 0,
@@ -132,39 +120,15 @@ func (l *Leasing) CreateOriginLease(response http.ResponseWriter, request *http.
 
 // DeleteOriginLeases deletes leases for an origin reference
 func (l *Leasing) DeleteOriginLeases(response http.ResponseWriter, request *http.Request) {
-    token, err := auth.ReadFromHeader(request)
+    _, err := auth.ReadFromHeader(request)
     if err != nil {
         web.Error(request, response, "invalid jwt", err, &web.HttpError{Detail: "invalid token", StatusCode: http.StatusUnauthorized})
         return
     }
 
-    leases, err := l.database.GetLeases(token.OriginReference)
-    if err != nil {
-        web.Error(request, response, fmt.Sprintf("error fetching leases from the database for origin '%s'", token.OriginReference), err, nil)
-        return
-    }
-
-    err = l.database.DeleteLeases(token.OriginReference)
-    if err != nil {
-        web.Error(request, response, fmt.Sprintf("error removing leases from the database for origin '%s'", token.OriginReference), err, nil)
-        return
-    }
-
-    leaseList := map[string]Lease{}
-    for _, lease := range leases {
-        leaseList[lease.Reference] = Lease{
-            Created:                 lease.CreatedAt.Format("2006-01-02T15:04:05.000000Z"),
-            Expires:                 lease.ExpiresAt.Format("2006-01-02T15:04:05.000000Z"),
-            LicenceType:             "CONCURRENT_COUNTED_SINGLE",
-            OfflineLease:            true,
-            RecommendedLeaseRenewal: global.LeaseRenewalPercent,
-            Reference:               lease.Reference,
-        }
-    }
-
     currentTime := time.Now().UTC()
     reply, err := json.Marshal(&DeleteLeaseResponse{
-        ReleasedLeaseList: leaseList,
+        ReleasedLeaseList: map[string]Lease{},
         SyncTimestamp:     currentTime.Format("2006-01-02T15:04:05.000000Z"),
     })
     if err != nil {
@@ -177,33 +141,15 @@ func (l *Leasing) DeleteOriginLeases(response http.ResponseWriter, request *http
 
 // GetOriginLeases fetches leases for an origin reference
 func (l *Leasing) GetOriginLeases(response http.ResponseWriter, request *http.Request) {
-    token, err := auth.ReadFromHeader(request)
+    _, err := auth.ReadFromHeader(request)
     if err != nil {
         web.Error(request, response, "invalid jwt", err, &web.HttpError{Detail: "invalid token", StatusCode: http.StatusUnauthorized})
         return
     }
 
-    leases, err := l.database.GetLeases(token.OriginReference)
-    if err != nil {
-        web.Error(request, response, fmt.Sprintf("error fetching leases from the database for origin '%s'", token.OriginReference), err, nil)
-        return
-    }
-
-    leaseList := map[string]Lease{}
-    for _, lease := range leases {
-        leaseList[lease.Reference] = Lease{
-            Created:                 lease.CreatedAt.Format("2006-01-02T15:04:05.000000Z"),
-            Expires:                 lease.ExpiresAt.Format("2006-01-02T15:04:05.000000Z"),
-            LicenceType:             "CONCURRENT_COUNTED_SINGLE",
-            OfflineLease:            true,
-            RecommendedLeaseRenewal: global.LeaseRenewalPercent,
-            Reference:               lease.Reference,
-        }
-    }
-
     currentTime := time.Now().UTC()
     reply, err := json.Marshal(&ListLeasesResponse{
-        ActiveLeaseList: leaseList,
+        ActiveLeaseList: map[string]Lease{},
         SyncTimestamp:   currentTime.Format("2006-01-02T15:04:05.000000Z"),
     })
     if err != nil {

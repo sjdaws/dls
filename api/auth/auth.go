@@ -5,12 +5,10 @@ import (
     "strings"
 
     "github.com/golang-jwt/jwt/v4"
-    db "github.com/sjdaws/dls/database"
     "github.com/sjdaws/dls/internal/global"
 )
 
 type Auth struct {
-    database *db.Database
 }
 
 type JWx struct {
@@ -20,10 +18,8 @@ type JWx struct {
 }
 
 // New creates a new auth instance
-func New(database *db.Database) *Auth {
-    return &Auth{
-        database: database,
-    }
+func New() *Auth {
+    return &Auth{}
 }
 
 // ReadFromHeader returns the auth code from the authorization header

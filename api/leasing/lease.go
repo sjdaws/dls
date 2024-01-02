@@ -2,7 +2,6 @@ package leasing
 
 import (
     "encoding/json"
-    "fmt"
     "net/http"
 
     "github.com/gorilla/mux"
@@ -25,21 +24,9 @@ func (l *Leasing) DeleteLease(response http.ResponseWriter, request *http.Reques
     parameters := mux.Vars(request)
     leaseId := parameters["id"]
 
-    token, err := auth.ReadFromHeader(request)
+    _, err := auth.ReadFromHeader(request)
     if err != nil {
         web.Error(request, response, "invalid jwt", err, &web.HttpError{Detail: "invalid token", StatusCode: http.StatusUnauthorized})
-        return
-    }
-
-    lease, err := l.database.GetLease(leaseId, token.OriginReference)
-    if err != nil {
-        web.Error(request, response, fmt.Sprintf("unable to fetch lease '%s' for origin '%s' from the database", leaseId, token.OriginReference), err, nil)
-        return
-    }
-
-    err = l.database.DeleteLease(lease)
-    if err != nil {
-        web.Error(request, response, fmt.Sprintf("unable to delete lease '%s' for origin '%s' from the database", leaseId, token.OriginReference), err, nil)
         return
     }
 
@@ -61,26 +48,14 @@ func (l *Leasing) UpdateLease(response http.ResponseWriter, request *http.Reques
     parameters := mux.Vars(request)
     leaseId := parameters["id"]
 
-    token, err := auth.ReadFromHeader(request)
+    _, err := auth.ReadFromHeader(request)
     if err != nil {
         web.Error(request, response, "invalid jwt", err, &web.HttpError{Detail: "invalid token", StatusCode: http.StatusUnauthorized})
         return
     }
 
-    lease, err := l.database.GetLease(leaseId, token.OriginReference)
-    if err != nil {
-        web.Error(request, response, fmt.Sprintf("unable to fetch lease '%s' for origin '%s' from the database", leaseId, token.OriginReference), err, nil)
-        return
-    }
-
     currentTime := global.CurrentTime()
     expiryTime := currentTime.Add(global.LeaseDuration)
-    lease.ExpiresAt = expiryTime
-    err = l.database.UpdateLease(lease)
-    if err != nil {
-        web.Error(request, response, fmt.Sprintf("unable to update lease '%s' for origin '%s' in the database", leaseId, token.OriginReference), err, nil)
-        return
-    }
 
     reply, err := json.Marshal(&LeaseResponse{
         ExpiresAt:               expiryTime.Format("2006-01-02T15:04:05.000000Z"),

@@ -3,15 +3,11 @@ package global
 import (
     "log"
     "os"
-    "os/user"
     "time"
 )
 
 var (
-    DatabaseDbName      = os.Getenv("DATABASE_DBNAME")
-    DatabaseHost        = os.Getenv("DATABASE_HOST")
-    DatabasePassword    = os.Getenv("DATABASE_PASSWORD")
-    DatabaseUsername    = os.Getenv("DATABASE_USERNAME")
+    ContainerPort       = aToI(os.Getenv("CONTAINER_PORT"))
     Debug               = aToB(os.Getenv("DEBUG"))
     HttpHost            = os.Getenv("HTTP_HOST")
     HttpPort            = aToI(os.Getenv("HTTP_PORT"))
@@ -25,28 +21,16 @@ var (
 )
 
 func setEnvDefaults() {
-    // Set defaults for variables if not defined
-    if DatabaseDbName == "" {
-        DatabaseDbName = "dls"
-    }
-
-    if DatabaseHost == "" {
-        DatabaseHost = "localhost"
-    }
-
-    if DatabaseUsername == "" {
-        currentUser, err := user.Current()
-        if err == nil {
-            DatabaseUsername = currentUser.Username
-        }
-    }
-
     if HttpHost == "" {
         HttpHost = "localhost"
     }
 
     if HttpPort == 0 {
         HttpPort = 80
+    }
+
+    if ContainerPort == 0 {
+        ContainerPort = HttpPort
     }
 
     if InstanceReference == "" {
