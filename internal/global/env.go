@@ -17,6 +17,7 @@ var (
     LeaseRenewalPercent = aToP(os.Getenv("LEASE_RENEWAL_PERCENT"))
     NotificationUrls    = os.Getenv("NOTIFICATION_URLS")
     ScopeReference      = os.Getenv("SCOPE_REFERENCE")
+    signingKey          = os.Getenv("SIGNING_KEY")
     signingKeyPath      = os.Getenv("SIGNING_KEY_PATH")
 )
 
@@ -53,7 +54,7 @@ func setEnvDefaults() {
         ScopeReference = "20000000-0000-0000-0000-000000000002"
     }
 
-    if signingKeyPath == "" {
-        log.Fatal("The SIGNING_KEY_PATH environment variable is mandatory")
+    if signingKey == "" && signingKeyPath == "" {
+        log.Fatal("The SIGNING_KEY or SIGNING_KEY_PATH environment variable is mandatory")
     }
 }

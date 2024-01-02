@@ -16,7 +16,10 @@ DLS server written in Go.
 | `LEASE_RENEWAL_PERCENT` | Percentage of licence time before a renewal should be triggered. Max 100(%), defaults to `15`(%).                                 | No       |
 | `NOTIFICATION_URLS`     | URLs to notify via [Shoutrrr](https://github.com/containrrr/shoutrrr).                                                            | No       |
 | `SCOPE_REFERENCE`       | UUID for the scope, defaults to `20000000-0000-0000-0000-000000000002`.                                                           | No       |
-| `SIGNING_KEY_PATH`      | Path to the private key used to sign JWTs.                                                                                        | Yes      |
+| `SIGNING_KEY`           | Text for the private key used to sign JWTs.                                                                                       | Yes*     |
+| `SIGNING_KEY_PATH`      | Path to the private key used to sign JWTs.                                                                                        | Yes*     |
+
+<sub>* One of `SIGNING_KEY` or `SIGNING_KEY_PATH` must be specified. Providing a text signing key allows DLS to run completely stateless.</sub>
 
 ### Creating a signing key
 
