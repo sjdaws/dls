@@ -10,6 +10,7 @@ import (
     "github.com/google/uuid"
     "github.com/sjdaws/dls/api/auth"
     db "github.com/sjdaws/dls/database"
+    "github.com/sjdaws/dls/internal/global"
     "github.com/sjdaws/dls/internal/web"
 )
 
@@ -32,12 +33,12 @@ type FulfillmentContext struct {
 }
 
 type Lease struct {
-    Created                 string `json:"created"`
-    Expires                 string `json:"expires"`
-    LicenceType             string `json:"licence_type"`
-    OfflineLease            bool   `json:"offline_lease"`
-    RecommendedLeaseRenewal string `json:"recommended_lease_renewal"`
-    Reference               string `json:"ref"`
+    Created                 string  `json:"created"`
+    Expires                 string  `json:"expires"`
+    LicenceType             string  `json:"licence_type"`
+    OfflineLease            bool    `json:"offline_lease"`
+    RecommendedLeaseRenewal float32 `json:"recommended_lease_renewal"`
+    Reference               string  `json:"ref"`
 }
 
 type LeaseList struct {
@@ -87,7 +88,7 @@ func (l *Leasing) CreateOriginLease(response http.ResponseWriter, request *http.
     }
 
     currentTime := time.Now().UTC()
-    expiryTime := currentTime.Add(90 * 24 * time.Hour)
+    expiryTime := currentTime.Add(global.LeaseDuration)
     leaseList := make([]LeaseList, 0)
     for range body.ScopeReferenceList {
         reference := strings.ToUpper(fmt.Sprintf("%v", uuid.New()))
@@ -110,7 +111,7 @@ func (l *Leasing) CreateOriginLease(response http.ResponseWriter, request *http.
                 Expires:                 expiryTime.Format("2006-01-02T15:04:05.000000Z"),
                 LicenceType:             "CONCURRENT_COUNTED_SINGLE",
                 OfflineLease:            true,
-                RecommendedLeaseRenewal: "0.15",
+                RecommendedLeaseRenewal: global.LeaseRenewalPercent,
                 Reference:               reference,
             },
         })
@@ -156,7 +157,7 @@ func (l *Leasing) DeleteOriginLeases(response http.ResponseWriter, request *http
             Expires:                 lease.ExpiresAt.Format("2006-01-02T15:04:05.000000Z"),
             LicenceType:             "CONCURRENT_COUNTED_SINGLE",
             OfflineLease:            true,
-            RecommendedLeaseRenewal: "0.15",
+            RecommendedLeaseRenewal: global.LeaseRenewalPercent,
             Reference:               lease.Reference,
         }
     }
@@ -195,7 +196,7 @@ func (l *Leasing) GetOriginLeases(response http.ResponseWriter, request *http.Re
             Expires:                 lease.ExpiresAt.Format("2006-01-02T15:04:05.000000Z"),
             LicenceType:             "CONCURRENT_COUNTED_SINGLE",
             OfflineLease:            true,
-            RecommendedLeaseRenewal: "0.15",
+            RecommendedLeaseRenewal: global.LeaseRenewalPercent,
             Reference:               lease.Reference,
         }
     }

@@ -4,7 +4,6 @@ import (
     "encoding/json"
     "fmt"
     "net/http"
-    "time"
 
     "github.com/gorilla/mux"
     "github.com/sjdaws/dls/api/auth"
@@ -16,7 +15,7 @@ type LeaseResponse struct {
     ExpiresAt               int64    `json:"expires,omitempty"`
     OfflineLease            bool     `json:"offline_lease,omitempty"`
     Prompts                 []string `json:"prompts"`
-    RecommendedLeaseRenewal string   `json:"recommended_lease_renewal,omitempty"`
+    RecommendedLeaseRenewal float32  `json:"recommended_lease_renewal,omitempty"`
     Reference               string   `json:"lease_ref"`
     SyncTimestamp           string   `json:"sync_timestamp"`
 }
@@ -75,7 +74,7 @@ func (l *Leasing) UpdateLease(response http.ResponseWriter, request *http.Reques
     }
 
     currentTime := global.CurrentTime()
-    expiryTime := currentTime.Add(90 * 24 * time.Hour)
+    expiryTime := currentTime.Add(global.LeaseDuration)
     lease.ExpiresAt = expiryTime
     err = l.database.UpdateLease(lease)
     if err != nil {
@@ -86,7 +85,7 @@ func (l *Leasing) UpdateLease(response http.ResponseWriter, request *http.Reques
     reply, err := json.Marshal(&LeaseResponse{
         ExpiresAt:               expiryTime.Unix(),
         OfflineLease:            true,
-        RecommendedLeaseRenewal: "0.15",
+        RecommendedLeaseRenewal: global.LeaseRenewalPercent,
         Reference:               leaseId,
         SyncTimestamp:           currentTime.Format("2006-01-02T15:04:05.000000Z"),
     })
