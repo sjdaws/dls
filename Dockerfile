@@ -7,8 +7,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build .
 FROM alpine
 
 COPY --from=builder /app/dls /app/dls
-RUN mkdir -p /app/database
-COPY database/migrate /app/database/migrate
 
 EXPOSE 80
 
