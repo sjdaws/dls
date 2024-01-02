@@ -8,8 +8,8 @@ DLS server written in Go.
 |-------------------------|-----------------------------------------------------------------------------------------------------------------------------------|----------|
 | `CONTAINER_PORT`        | The port for the container to listen for connections on, defaults to `HTTP_PORT`.                                                 | No       |
 | `DEBUG`                 | Enable debug for requests and responses. **Note:** this is *very* verbose.                                                        | No       |
-| `HTTP_HOST`             | The external hostname to reach the server, defaults to `localhost`. **Note:** this should be the hostname of the proxy/forwarder. | No       |
-| `HTTP_PORT`             | The external port to reach the server, defaults to `80`. **Note:** this should be the port of the proxy/forwarder.                | No       |
+| `FORWARDER_HOST`        | The external hostname to reach the server, defaults to `localhost`. **Note:** this should be the hostname of the proxy/forwarder. | No       |
+| `FORWARDER_PORT`        | The external port to reach the server, defaults to `80`. **Note:** this should be the port of the proxy/forwarder.                | No       |
 | `INSTANCE_REFERENCE`    | UUID for the instance, defaults to `00000000-0000-0000-0000-000000000000`.                                                        | No       |
 | `KEY_REFERENCE`         | UUID for the key, defaults to `10000000-0000-0000-0000-000000000001`.                                                             | No       |
 | `LEASE_DURATION`        | Duration of lease in format 1w2d3h4m5ns. Max 90d, defaults to `90d`.                                                              | No       |

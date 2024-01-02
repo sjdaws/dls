@@ -9,8 +9,8 @@ import (
 var (
     ContainerPort       = aToI(os.Getenv("CONTAINER_PORT"))
     Debug               = aToB(os.Getenv("DEBUG"))
-    HttpHost            = os.Getenv("HTTP_HOST")
-    HttpPort            = aToI(os.Getenv("HTTP_PORT"))
+    HttpHost            = os.Getenv("FORWARDER_HOST")
+    HttpPort            = aToI(os.Getenv("FORWARDER_PORT"))
     InstanceReference   = os.Getenv("INSTANCE_REFERENCE")
     KeyReference        = os.Getenv("KEY_REFERENCE")
     LeaseDuration       = aToD(os.Getenv("LEASE_DURATION"))
