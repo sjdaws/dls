@@ -1,0 +1,78 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dls
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: signing-key
+  namespace: dls
+stringData:
+  key: |
+    -----BEGIN PRIVATE KEY-----
+    MII...
+    -----END PRIVATE KEY-----
+type: Opaque
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: dls
+    service: dls
+  name: dls
+  namespace: dls
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 80
+  selector:
+    app: dls
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dls
+  namespace: dls
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dls
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: dls
+        version: v1
+    spec:
+      containers:
+      - env:
+        - name: LEASE_DURATION
+          value: "90d"
+        - name: LEASE_RENEWAL_PERCENT
+          value: "15"
+        - name: SIGNING_KEY
+          valueFrom:
+            secretKeyRef:
+              name: signing-key
+              key: key
+        image: docker.io/sjdaws/dls
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 80
+          periodSeconds: 20
+          timeoutSeconds: 2
+        name: dls
+        resources:
+          limits:
+            memory: 128Mi
+          requests:
+            cpu: 100m
