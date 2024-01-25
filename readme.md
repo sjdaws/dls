@@ -6,7 +6,7 @@ DLS server written in Go.
 
 | Key                     | Description                                                                                                                       | Required |
 |-------------------------|-----------------------------------------------------------------------------------------------------------------------------------|----------|
-| `CONTAINER_PORT`        | The port for the container to listen for connections on, defaults to `HTTP_PORT`.                                                 | No       |
+| `CONTAINER_PORT`        | The port for the container to listen for connections on, defaults to `FORWARDER_PORT`.                                            | No       |
 | `DEBUG`                 | Enable debug for requests and responses. **Note:** this is *very* verbose.                                                        | No       |
 | `FORWARDER_HOST`        | The external hostname to reach the server, defaults to `localhost`. **Note:** this should be the hostname of the proxy/forwarder. | No       |
 | `FORWARDER_PORT`        | The external port to reach the server, defaults to `80`. **Note:** this should be the port of the proxy/forwarder.                | No       |
